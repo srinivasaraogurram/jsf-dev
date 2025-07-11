@@ -1,35 +1,8 @@
-Great! Here's a summary of your requirement and how we’ll tackle it step-by-step:
+Sure! Here's your **fully updated DevContainer setup** with Tomcat version **9.0.107** using the provided link:
 
 ---
 
-### ✅ **Summary of Your Requirement**
-
-You want to:
-
-* Work in **GitHub Codespaces** using a **DevContainer** setup.
-* Use **Java 8**, **Tomcat 9**, **Maven**, and **JSF (ServletX spec)**.
-* Install Java, Maven, etc., via **SDKMAN**.
-* Create and deploy a **"Hello World" JSF application**.
-
----
-
-### 🧩 **Step-by-Step Interactive Guide**
-
-We'll go in the following steps:
-
-1. **DevContainer Setup**: Create `.devcontainer/devcontainer.json` and `Dockerfile` with SDKMAN for Java 8, Maven, and Tomcat 9.
-2. **Project Setup**: Scaffold a basic Maven project with JSF dependencies.
-3. **Hello World JSF App**: Create a simple `index.xhtml` and JSF-managed bean.
-4. **Deploy to Tomcat**: Configure and run Tomcat in Codespaces.
-5. **Access the Application**: Access and test the Hello World JSF page.
-
----
-
-### Step 1: Create the DevContainer with SDKMAN
-
-We'll begin by creating the `.devcontainer` directory and adding:
-
-#### 📄 `.devcontainer/devcontainer.json`
+### 📁 `.devcontainer/devcontainer.json`
 
 ```json
 {
@@ -47,30 +20,40 @@ We'll begin by creating the `.devcontainer` directory and adding:
 }
 ```
 
-#### 🐳 `.devcontainer/Dockerfile`
+---
 
-```Dockerfile
+### 🐳 `.devcontainer/Dockerfile`
+
+```dockerfile
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV SDKMAN_DIR="/root/.sdkman"
+ENV JAVA_VERSION="8.0.382-tem"
+ENV MAVEN_VERSION="3.8.8"
+ENV TOMCAT_VERSION="9.0.107"
 
+# Install tools
 RUN apt-get update && apt-get install -y \
-  curl unzip zip git bash ca-certificates \
+  curl unzip zip git bash ca-certificates gnupg software-properties-common \
   && rm -rf /var/lib/apt/lists/*
 
 # Install SDKMAN
-RUN curl -s "https://get.sdkman.io" | bash && \
-    bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && \
-             sdk install java 8.0.382-tem && \
-             sdk install maven 3.8.8"
+RUN curl -s "https://get.sdkman.io" | bash
 
-ENV JAVA_HOME=/root/.sdkman/candidates/java/current
-ENV MAVEN_HOME=/root/.sdkman/candidates/maven/current
-ENV PATH="$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH"
+# Install Java and Maven via SDKMAN
+RUN bash -c "source $SDKMAN_DIR/bin/sdkman-init.sh && \
+    sdk install java ${JAVA_VERSION} && \
+    sdk install maven ${MAVEN_VERSION} && \
+    sdk use java ${JAVA_VERSION} && \
+    sdk use maven ${MAVEN_VERSION}"
 
-# Install Tomcat 9
-RUN curl -fsSL https://downloads.apache.org/tomcat/tomcat-9/v9.0.87/bin/apache-tomcat-9.0.87.tar.gz | tar xz -C /opt && \
-    mv /opt/apache-tomcat-* /opt/tomcat && \
+ENV PATH="$SDKMAN_DIR/candidates/java/current/bin:$SDKMAN_DIR/candidates/maven/current/bin:$PATH"
+
+# Install Tomcat 9.0.107
+RUN mkdir -p /opt/tomcat && \
+    curl -fsSL https://downloads.apache.org/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz | \
+    tar xz --strip-components=1 -C /opt/tomcat && \
     chmod +x /opt/tomcat/bin/*.sh
 
 ENV CATALINA_HOME=/opt/tomcat
@@ -79,15 +62,39 @@ ENV PATH="$CATALINA_HOME/bin:$PATH"
 WORKDIR /workspace
 ```
 
-#### 🛠 `.devcontainer/setup.sh`
+---
+
+### 🛠️ `.devcontainer/setup.sh`
 
 ```bash
 #!/bin/bash
+set -e
+
+# Reinitialize SDKMAN environment
 source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# Activate Java and Maven
 sdk use java 8.0.382-tem
 sdk use maven 3.8.8
+
+# Confirm setup
+java -version
+mvn -version
 ```
 
 ---
 
-Would you like me to help generate this directory structure and commit it to a GitHub repo for Codespaces next? Or shall I guide you to create it manually step-by-step in your own repo?
+### ✅ What to Do Next
+
+1. Add these 3 files to your GitHub repo in the `.devcontainer` folder.
+2. Open the repo in **GitHub Codespaces**.
+3. Once the container is ready, run Tomcat:
+
+   ```bash
+   catalina.sh run
+   ```
+4. It should start at [http://localhost:8080](http://localhost:8080).
+
+---
+
+Shall we continue to Step 2 now — scaffolding a Hello World JSF Maven app?

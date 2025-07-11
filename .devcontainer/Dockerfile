@@ -1,25 +1,33 @@
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV SDKMAN_DIR="/root/.sdkman"
+ENV JAVA_VERSION="8.0.382-tem"
+ENV MAVEN_VERSION="3.8.8"
+ENV TOMCAT_VERSION="9.0.107"
 
+# Install tools
 RUN apt-get update && apt-get install -y \
-  curl unzip zip git bash ca-certificates \
+  curl unzip zip git bash ca-certificates gnupg software-properties-common \
   && rm -rf /var/lib/apt/lists/*
 
 # Install SDKMAN
-RUN curl -s "https://get.sdkman.io" | bash && \
-    bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && \
-             sdk install java 8.0.382-tem && \
-             sdk install maven 3.8.8"
+RUN curl -s "https://get.sdkman.io" | bash
 
-ENV JAVA_HOME=/root/.sdkman/candidates/java/current
-ENV MAVEN_HOME=/root/.sdkman/candidates/maven/current
-ENV PATH="$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH"
+# Install Java and Maven via SDKMAN
+RUN bash -c "source $SDKMAN_DIR/bin/sdkman-init.sh && \
+  sdk install java ${JAVA_VERSION} && \
+  sdk install maven ${MAVEN_VERSION} && \
+  sdk use java ${JAVA_VERSION} && \
+  sdk use maven ${MAVEN_VERSION}"
 
-# Install Tomcat 9
-RUN curl -fsSL https://downloads.apache.org/tomcat/tomcat-9/v9.0.87/bin/apache-tomcat-9.0.87.tar.gz | tar xz -C /opt && \
-    mv /opt/apache-tomcat-* /opt/tomcat && \
-    chmod +x /opt/tomcat/bin/*.sh
+ENV PATH="$SDKMAN_DIR/candidates/java/current/bin:$SDKMAN_DIR/candidates/maven/current/bin:$PATH"
+
+# Install Tomcat 9.0.107
+RUN mkdir -p /opt/tomcat && \
+  curl -fsSL https://downloads.apache.org/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz | \
+  tar xz --strip-components=1 -C /opt/tomcat && \
+  chmod +x /opt/tomcat/bin/*.sh
 
 ENV CATALINA_HOME=/opt/tomcat
 ENV PATH="$CATALINA_HOME/bin:$PATH"
