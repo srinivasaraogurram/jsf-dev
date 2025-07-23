@@ -5,3 +5,4 @@
     - Step 2:
 [Creating JSF Hello World Application](step2-scaffold-a-Hello-World-JSF-Application.md)
 
+![alt text](image.png)
