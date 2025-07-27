@@ -1,5 +1,7 @@
 # jsf-dev
 
+JSF-EJB: https://www.youtube.com/watch?v=JxcBgWtUgjc&list=PLoW1nQhPBiz9OQ6ucp8Q_zv2yjsh5yLuG
+
 [JSF 2.2 - Java Server Faces for Beginners - Build a DB App](https://gale.udemy.com/course/jsf-tutorial/learn/lecture/2617720#overview)
 - JSF Dev using Tomcat 9, Java 8 Maven 3.8.8  
     - Step1: 
